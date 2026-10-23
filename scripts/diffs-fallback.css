@@ -1,0 +1,45 @@
+/* diffs-fallback.css — 兜底补丁：代码块行号栏与代码栏的两栏网格。
+ *
+ * 何时用：视觉验收发现"依据的 R 输出"等代码块行号(1..N)与代码行上下堆叠、
+ * 行号右侧整片空白 —— 说明提取时 shadow CSS 收集不完整（常见于远程会话已死、
+ * 无法重新提取，只能对已落盘的 HTML 做文件级修补）。
+ *
+ * 用法：把本文件全部内容（含 <style> 包裹）注入独立 HTML 文档末尾（闭合 body
+ * 标签之前，与 driver 的 injectAtEnd 同位；不要锚定第一个闭合 head/body 标签——
+ * 对话正文/属性值可能含其字面量），然后重跑 render.py。
+ * 追加在既有 <style> 之后，天然覆盖同权重规则。
+ *
+ * 结构假设（提取后的拍平 DOM）：
+ *   <diffs-container class="min-h-full w-full">
+ *     <pre><code data-code="">
+ *       <div data-gutter style="grid-row: span N"> <div><span data-line-number-content>1</span></div> ×N
+ *       <div data-content style="grid-row: span N"> <div><span>代码行</span></div> ×N
+ *     </code></pre>
+ *   </diffs-container>
+ */
+<style id="diffs-layout-fix">
+diffs-container code[data-code] {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-auto-flow: column;
+  grid-auto-rows: 20px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+  font-size: 13px;
+}
+diffs-container code[data-code] [data-gutter] > div,
+diffs-container code[data-code] [data-content] > div {
+  height: 20px;
+  line-height: 20px;
+  white-space: pre;
+}
+diffs-container code[data-code] [data-gutter] {
+  text-align: right;
+  padding-right: 16px;
+  color: #7d8590;
+  user-select: none;
+}
+diffs-container code[data-code] [data-content] {
+  padding-left: 16px;
+  min-width: 0;
+}
+</style>
